@@ -42,4 +42,11 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+    // App\Models\User.php
+
+    public function favoriteMods()
+    {
+        return $this->belongsToMany(Mods::class, 'favorite_mods', 'user_id', 'mod_id')->withTimestamps();
+    }
+
 }

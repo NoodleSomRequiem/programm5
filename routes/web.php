@@ -5,6 +5,7 @@ use App\Http\Controllers\ModsController;
 
 
 
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -24,3 +25,10 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::resource('mods', ModsController::class);
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+Route::post('/mods/{mod}/toggle-favorite', [ModsController::class, 'toggleFavorite'])->name('mods.toggleFavorite');
+

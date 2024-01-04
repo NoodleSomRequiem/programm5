@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 use App\Models\Mods;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ModsController extends Controller
 {
@@ -60,6 +61,24 @@ class ModsController extends Controller
 
         return redirect()->route('mods.index')
             ->with('success', 'Mods deleted successfully');
+    }
+    public function toggleFavorite(Mods $mod)
+    {
+        $user = Auth::user();
+
+        if ($user) {
+            if ($user->favoriteMods->contains($mod)) {
+                $user->favoriteMods()->detach($mod);
+            } else {
+                $user->favoriteMods()->attach($mod);
+            }
+
+            return redirect()->route('mods.show', $mod->id)
+                ->with('success', 'Favorite status updated successfully');
+        } else {
+            return redirect()->route('mods.show', $mod->id)
+                ->with('error', 'You need to be logged in to favorite a mod.');
+        }
     }
 }
 
