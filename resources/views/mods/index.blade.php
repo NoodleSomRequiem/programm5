@@ -3,9 +3,30 @@
 @section('content')
     <div class="container">
         <h2>Mods List</h2>
+
+        <!-- Add the search form -->
+        <form action="{{ route('mods.index') }}" method="GET" class="mb-3">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search mods" name="search">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="submit">Search</button>
+                </div>
+            </div>
+        </form>
+
         <div class="mt-3">
-            <a href="{{ route('home') }}" class="btn btn-primary">Go to home</a>
+            <a href="{{ route('home') }}" class="btn btn-primary">Go back</a>
         </div>
+
+        <!-- Display the role-based message -->
+        <div class="mt-3">
+            @if(Auth::user() && Auth::user()->role === 'admin')
+                <p>You are: admin</p>
+            @else
+                <p>You are: user</p>
+            @endif
+        </div>
+
         <table class="table">
             <thead>
             <tr>

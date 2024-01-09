@@ -49,4 +49,25 @@ class User extends Authenticatable
         return $this->belongsToMany(Mods::class, 'favorite_mods', 'user_id', 'mod_id')->withTimestamps();
     }
 
+    public function updateRoleIfRequired()
+    {
+        $favoriteCount = FavoriteCount::where('user_id', $this->id)->first();
+
+        if (!$favoriteCount) {
+            // Create a record if it doesn't exist
+            $favoriteCount = FavoriteCount::create(['user_id' => $this->id]);
+        }
+
+        // Get the total count of favorite mods for the user
+        $totalCount = $this->favoriteMods()->count();
+
+        if ($totalCount >= 3 && $this->role === 'user') {
+            $this->role = 'admin';
+            $this->save();
+
+            // You can also add any additional logic or notifications here
+        }
+    }
+
+
 }
