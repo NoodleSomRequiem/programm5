@@ -8,11 +8,33 @@ use App\Models\User;
 
 class ModsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $mods = Mods::all();
+        $query = Mods::query();
+
+        // Zoeken op vrije tekst in meerdere kolommen
+        if ($request->has('search')) {
+            $searchTerm = $request->input('search');
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', "%$searchTerm%")
+                    ->orWhere('description', 'like', "%$searchTerm%");
+            });
+        }
+
+        // Filteren op favorieten
+        if ($request->has('filter') && $request->input('filter') == 'favorites') {
+            $user = Auth::user();
+
+            if ($user) {
+                $query->whereIn('id', $user->favoriteMods->pluck('id'));
+            }
+        }
+
+        $mods = $query->get();
+
         return view('mods.index', compact('mods'));
     }
+
 
     public function create()
     {

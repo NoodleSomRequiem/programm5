@@ -5,14 +5,20 @@
         <h2>Mods List</h2>
 
         <!-- Add the search form -->
-        <form action="{{ route('mods.index') }}" method="GET" class="mb-3">
-            <div class="input-group">
-                <input type="text" class="form-control" placeholder="Search mods" name="search">
-                <div class="input-group-append">
-                    <button class="btn btn-outline-secondary" type="submit">Search</button>
-                </div>
-            </div>
+        <form action="{{ route('mods.index') }}" method="GET">
+            <input type="text" name="search" placeholder="Zoekveld">
+            <select name="filter">
+                <option value="">Alle mods</option>
+                <option value="favorites">Mijn favorieten</option>
+            </select>
+            <button type="submit">Zoeken</button>
         </form>
+
+        <!-- Toon je mods hier -->
+    @foreach($mods as $mod)
+        <!-- Toon de gegevens van de mod -->
+        @endforeach
+
 
         <div class="mt-3">
             <a href="{{ route('home') }}" class="btn btn-primary">Go back</a>
