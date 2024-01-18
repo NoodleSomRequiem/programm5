@@ -10,14 +10,20 @@ class Mods extends Model
         'name',
         'description',
         'image',
-        // Add '_token' to the fillable fields
         '_token',
+        'is_visible',
     ];
     // App\Models\Mods.php
 
     public function favoritedBy()
     {
         return $this->belongsToMany(User::class, 'favorite_mods', 'mod_id', 'user_id')->withTimestamps();
+    }
+
+    public function user()
+    {
+        // A post belongs to a single user
+        return $this->belongsTo(User::class, 'user_id');
     }
 
 }

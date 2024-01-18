@@ -35,6 +35,11 @@
                 <input type="file" class="form-control-file" id="image" name="image" accept="image/*" required>
             </div>
 
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="is_visible" name="is_visible" checked>
+                <label class="form-check-label" for="is_visible">Visible</label>
+            </div>
+
             <button type="submit" class="btn btn-primary">Create Mod</button>
         </form>
     </div>

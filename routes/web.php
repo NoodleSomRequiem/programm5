@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ModsController;
+use App\Http\Controllers\ProfileController;
 
 
 
@@ -16,9 +17,11 @@ use App\Http\Controllers\ModsController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+Route::get('/', [ModsController::class, 'index'])->name('index');
 
-Route::get('/', function () {
-    return view('welcome');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
 });
 
 Auth::routes();

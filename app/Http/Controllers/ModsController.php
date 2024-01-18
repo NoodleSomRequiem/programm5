@@ -12,7 +12,13 @@ class ModsController extends Controller
     {
         $query = Mods::query();
 
-        // Zoeken op vrije tekst in meerdere kolommen
+        if (Auth::check() && Auth::user()->role === 'admin') {
+            // If the user is an admin, show all mods
+        } else {
+            // If the user is not logged in or not an admin, show only visible mods
+            $query->where('is_visible', true);
+        }
+
         if ($request->has('search')) {
             $searchTerm = $request->input('search');
             $query->where(function ($q) use ($searchTerm) {
@@ -21,7 +27,7 @@ class ModsController extends Controller
             });
         }
 
-        // Filteren op favorieten
+        // Filter on favorites if the filter is set
         if ($request->has('filter') && $request->input('filter') == 'favorites') {
             $user = Auth::user();
 
@@ -35,7 +41,6 @@ class ModsController extends Controller
         return view('mods.index', compact('mods'));
     }
 
-
     public function create()
     {
         return view('mods.create');
@@ -47,13 +52,26 @@ class ModsController extends Controller
             'name' => 'required',
             'description' => 'required',
             'image' => 'required',
+            'is_visible' => 'required|accepted', // Allow truthy values (e.g., '1', 'true', 'on')
         ]);
 
-        Mods::create($request->except('_token'));
+        $imagePath = $request->file('image')->store('mod_images', 'public');
 
-        return redirect()->route('mods.index')
-            ->with('success', 'Mods created successfully');
+        $mod = new Mods([
+            'name' => $request->input('name'),
+            'description' => $request->input('description'),
+            'image' => $request->input('image'),
+            'is_visible' => $request->has('is_visible'), // Set the visibility attribute based on the presence of the field
+        ]);
+
+        $mod->user_id = Auth::user()->id;
+        $mod->image = $imagePath;
+
+        $mod->save();
+
+        return redirect()->route('mods.index')->with('success', 'Mod created successfully');
     }
+
 
     public function show(Mods $mod)
     {
@@ -61,9 +79,12 @@ class ModsController extends Controller
         return view('mods.show', compact('mod'));
     }
 
-    public function edit(Mods $mod)
+    public function edit($id)
     {
-        return view('mods.edit', compact('mod'));
+        $mod = Mods::findOrFail($id);
+        if ($mod->user_id == Auth::user()->id) {
+            return view('mods.edit', compact('mod'));
+        }
     }
 
     public function update(Request $request, Mods $mod)
@@ -72,20 +93,30 @@ class ModsController extends Controller
             'name' => 'required',
             'description' => 'required',
             'image' => 'required',
+            'is_visible' => 'boolean',
         ]);
 
-        $mod->update($request->except('_token'));
+        $mod->update([
+            'name' => $request->input('name'),
+            'description' => $request->input('description'),
+            'image' => $request->input('image'),
+            'is_visible' => $request->input('is_visible', false),
+        ]);
 
-        return redirect()->route('mods.index')
-            ->with('success', 'Mod updated successfully');
+        return redirect()->route('mods.index')->with('success', 'Mod updated successfully');
     }
 
-    public function destroy(Mods $mod)
-    {
-        $mod->delete();
 
-        return redirect()->route('mods.index')
-            ->with('success', 'Mods deleted successfully');
+    public function destroy($id)
+    {
+        $mod = Mods::findOrFail($id);
+
+        if ($mod->user_id == Auth::user()->id) {
+            $mod->delete();
+
+            return redirect()->route('mods.index')
+                ->with('success', 'Mods deleted successfully');
+        }
     }
     public function toggleFavorite(Mods $mod)
     {
